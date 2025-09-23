@@ -67,7 +67,7 @@ public final class InkStrokePathSmoother {
         started = true
         hasPathMove = false
 
-        var results = try modeler.update(StrokeInput(eventType: .down,
+        let results = try modeler.update(StrokeInput(eventType: .down,
                                                x: Float(point.x), y: Float(point.y),
                                                time: time,
                                                pressure: pressure,

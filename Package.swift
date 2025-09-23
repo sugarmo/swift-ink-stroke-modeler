@@ -14,20 +14,58 @@ let package = Package(
         .library(name: "InkStrokeModelerSwift", targets: ["InkStrokeModelerSwift"]) 
         // Swift wrapper target will be added after C++ compiles successfully.
     ],
-    dependencies: [
-        // Use Firebase's SwiftPM distribution of Abseil for iOS/macOS.
-        .package(url: "https://github.com/firebase/abseil-cpp-SwiftPM.git", branch: "main")
-    ],
     targets: [
+        .target(
+          name: "abseil",
+          path: ".",
+          exclude: [
+            // main functions
+            // tests
+            "absl/random/benchmarks.cc",
+            // .inc files
+            "absl/debugging/internal/stacktrace_win32-inl.inc",
+            "absl/debugging/internal/stacktrace_riscv-inl.inc",
+            "absl/debugging/internal/stacktrace_generic-inl.inc",
+            "absl/debugging/internal/stacktrace_unimplemented-inl.inc",
+            "absl/debugging/internal/stacktrace_x86-inl.inc",
+            "absl/debugging/internal/stacktrace_arm-inl.inc",
+            "absl/debugging/internal/stacktrace_aarch64-inl.inc",
+            "absl/debugging/internal/stacktrace_powerpc-inl.inc",
+            "absl/debugging/internal/stacktrace_emscripten-inl.inc",
+            "absl/debugging/symbolize_win32.inc",
+            "absl/debugging/symbolize_emscripten.inc",
+            "absl/debugging/symbolize_unimplemented.inc",
+            "absl/debugging/symbolize_elf.inc",
+            "absl/debugging/symbolize_darwin.inc",
+            "absl/time/internal/get_current_time_chrono.inc",
+            "absl/time/internal/get_current_time_posix.inc",
+            "absl/numeric/int128_have_intrinsic.inc",
+            "absl/numeric/int128_no_intrinsic.inc",
+            "absl/base/internal/spinlock_akaros.inc",
+            "absl/base/internal/spinlock_linux.inc",
+            "absl/base/internal/spinlock_posix.inc",
+            "absl/base/internal/spinlock_win32.inc",
+            // other files
+            "absl/flags/flag_benchmark.lds",
+            "absl/abseil.podspec.gen.py",
+          ],
+          sources: [
+            "absl/"
+          ],
+          publicHeadersPath: ".",
+          cSettings: [
+            .headerSearchPath("./"),
+          ],
+          linkerSettings: [
+            .linkedFramework("CoreFoundation"),
+          ]
+        ),
         // C++ target built from the upstream sources via SwiftPM.
         // Tests and CMake scaffolding are intentionally excluded.
         .target(
             name: "InkStrokeModeler",
             dependencies: [
-                // The abseil-cpp-SwiftPM package exports products for Abseil headers/libs.
-                // The exact product name can differ; "abseil" is commonly used. If build
-                // fails due to product name, we will adjust after fetching the package.
-                .product(name: "abseil", package: "abseil-cpp-swiftpm")
+                "abseil"
             ],
             path: "ink-stroke-modeler/ink_stroke_modeler",
             sources: [
