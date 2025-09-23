@@ -33,7 +33,7 @@ public enum EventType {
     }
 }
 
-public struct Input {
+public struct StrokeInput {
     public var eventType: EventType
     public var x: Float
     public var y: Float
@@ -54,7 +54,7 @@ public struct Input {
     }
 }
 
-public struct Result: Equatable {
+public struct StrokeSample: Equatable {
     public var x: Float
     public var y: Float
     public var vx: Float
@@ -269,7 +269,7 @@ public final class StrokeModeler {
     public func save() { ism_modeler_save(handle) }
     public func restore() { ism_modeler_restore(handle) }
 
-    public func update(_ input: Input) throws -> [Result] {
+    public func update(_ input: StrokeInput) throws -> [StrokeSample] {
         var cin = ism_Input(
             event_type: input.eventType.cEvent,
             position: ism_Vec2(x: input.x, y: input.y),
@@ -301,14 +301,14 @@ public final class StrokeModeler {
 
         let n = min(produced, capacity)
         return out.prefix(n).map { r in
-            Result(x: r.position.x, y: r.position.y,
+            StrokeSample(x: r.position.x, y: r.position.y,
                    vx: r.velocity.x, vy: r.velocity.y,
                    ax: r.acceleration.x, ay: r.acceleration.y,
                    time: r.time, pressure: r.pressure, tilt: r.tilt, orientation: r.orientation)
         }
     }
 
-    public func predict(max: Int = 1024) throws -> [Result] {
+    public func predict(max: Int = 1024) throws -> [StrokeSample] {
         var out = Array<ism_Result>(repeating: ism_Result(
             position: ism_Vec2(x: 0, y: 0),
             velocity: ism_Vec2(x: 0, y: 0),
@@ -326,7 +326,7 @@ public final class StrokeModeler {
         }
         let n = min(produced, max)
         return out.prefix(n).map { r in
-            Result(x: r.position.x, y: r.position.y,
+            StrokeSample(x: r.position.x, y: r.position.y,
                    vx: r.velocity.x, vy: r.velocity.y,
                    ax: r.acceleration.x, ay: r.acceleration.y,
                    time: r.time, pressure: r.pressure, tilt: r.tilt, orientation: r.orientation)
