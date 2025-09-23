@@ -1,29 +1,47 @@
-# swift-ink-stroke-modeler
+# InkStrokeModeler for Swift
 
-Swift Package that wraps Google’s [ink-stroke-modeler] C++ library and exposes a
-clean Swift API for real‑time ink smoothing and prediction on Apple platforms.
+[![Swift 5.9+](https://img.shields.io/badge/Swift-5.9+-orange.svg)](https://swift.org)
+[![Platforms](https://img.shields.io/badge/Platforms-iOS%20%7C%20macOS-blue.svg)](https://developer.apple.com)
+[![License](https://img.shields.io/badge/License-Apache%202.0-lightgrey.svg)](https://opensource.org/licenses/Apache-2.0)
 
-- Targets
-  - `InkStrokeModeler` (C++ sources from upstream, built via SwiftPM)
-  - `InkStrokeModelerFFI` (C/ObjC++ shim; hides Abseil/C++ templates)
-  - `InkStrokeModelerSwift` (Swift‑friendly API)
-- Platforms: iOS 14+, macOS 12+
-- Swift Tools: 5.9+
+A Swift Package that wraps Google’s [ink-stroke-modeler](https://github.com/google/ink-stroke-modeler) C++ library, exposing a clean, idiomatic Swift API for real-time ink smoothing and prediction on Apple platforms.
 
-This package fetches Abseil via Firebase’s SPM distribution to support iOS/macOS
-without system‑level installs.
+This library turns noisy, raw pointer input from a touch device or stylus into beautiful, smooth stroke patterns, ideal for drawing and handwriting applications. It models the physics of a pen tip to create aesthetically pleasing curves while minimizing latency through motion prediction.
 
-[ink-stroke-modeler]: https://github.com/google/ink-stroke-modeler
+![Position Model Diagram](ink-stroke-modeler/position_model.svg)
+
+## Features
+
+- **Real-time Smoothing**: Smooths jitter and noise from raw touch/stylus input.
+- **Latency-masking Prediction**: Predicts the stroke's path to provide a more responsive drawing experience.
+- **Configurable Physics**: Fine-tune parameters like spring-mass, drag, wobble smoothing, and more.
+- **Multiple Prediction Engines**: Choose between a simple stroke-end predictor or an advanced Kalman filter predictor.
+- **High-level Helpers**: Includes a `CGPath` helper to easily generate smoothed paths from a series of points.
+- **Type-Safe & Idiomatic API**: A pure Swift interface that handles the complexity of C++ interop for you.
+- **Self-Contained**: All dependencies (Abseil, C++ sources) are managed internally by the Swift package.
+
+## How It Works
+
+The package is structured in three layers to safely bridge the underlying C++ library with a pure Swift interface:
+
+- `InkStrokeModeler` (C++): The core C++ sources from Google's upstream repository, compiled directly by SwiftPM.
+- `InkStrokeModelerFFI` (C/Objective-C++): A thin C-style shim that hides C++ templates and Abseil details from Swift.
+- `InkStrokeModelerSwift` (Swift): The public, Swift-friendly API that your application will consume.
+
+## Requirements
+
+- **Swift Tools**: 5.9+
+- **Platforms**: iOS 14+, macOS 12+
 
 ## Installation
 
-Add to your project’s `Package.swift` dependencies:
+Add the package to your project’s `Package.swift` dependencies:
 
 ```swift
-.package(url: "https://github.com/YOUR_ORG_OR_USER/swift-ink-stroke-modeler.git", branch: "main")
+.package(url: "https://github.com/Yojio/swift-ink-stroke-modeler.git", branch: "main")
 ```
 
-Then depend on the Swift target in your app or framework target:
+Then, add the `InkStrokeModelerSwift` product to your app or framework target:
 
 ```swift
 .target(
@@ -34,15 +52,17 @@ Then depend on the Swift target in your app or framework target:
 )
 ```
 
-Import in code:
+Finally, import the module in your code:
 
 ```swift
 import InkStrokeModelerSwift
 ```
 
-## Quick Start (low‑level)
+## Quick Start
 
-Use `StrokeModeler` for direct control over parameters and streaming inputs.
+### 1. Low-Level: `StrokeModeler`
+
+Use `StrokeModeler` for direct control over parameters and streaming individual input points.
 
 ```swift
 let modeler = StrokeModeler()
@@ -76,14 +96,12 @@ let up = StrokeInput(eventType: .up, x: 25, y: 35, time: 0.02)
 let resUp: [StrokeSample] = try modeler.update(up)
 ```
 
-- `StrokeSample` exposes position/velocity/acceleration, timestamp and stylus
-  attributes.
-- Throws on invalid parameter combinations or ordering (e.g. calling `update`
-  before `reset`, or sending inputs out of order).
+- `StrokeSample` exposes position, velocity, acceleration, timestamp, and stylus attributes.
+- The API throws a `StrokeModelerError` on invalid parameter combinations or if inputs are sent in the wrong order (e.g., `.move` before `.down`).
 
-## Quick Start (CGPath helper)
+### 2. High-Level: `InkStrokePathSmoother`
 
-`InkStrokePathSmoother` helps build a smoothed `CGPath` from streaming input.
+`InkStrokePathSmoother` is a convenient helper for building a smoothed `CGPath` from a stream of points.
 
 ```swift
 let smoother = InkStrokePathSmoother()
@@ -92,11 +110,13 @@ try smoother.append(point: CGPoint(x: 20, y: 30), time: 0.01)
 let path: CGPath = try smoother.end(time: 0.02)
 ```
 
-- `start/append/end` updates an internal `CGMutablePath` incrementally.
-- After `end`, `path` is the final smoothed path for the stroke.
-- Call `resetPath()` to clear and begin a new stroke.
+- `start/append/end` methods update an internal `CGMutablePath` incrementally.
+- After `end`, `path` contains the final smoothed path for the stroke.
+- Call `resetPath()` to clear the state and begin a new stroke.
 
-### End‑to‑end Swift usage example
+## End-to-End Example
+
+This example configures the modeler with a Kalman predictor and feeds it a series of points.
 
 ```swift
 import InkStrokeModelerSwift
@@ -139,7 +159,7 @@ try modeler.reset(
   prediction: .kalman(kalman)
 )
 
-// 2) Feed points
+// 2) Feed points to the modeler
 let down = StrokeInput(eventType: .down, x: 0, y: 0, time: 0)
 let _ = try modeler.update(down)
 
@@ -150,61 +170,38 @@ for i in 1...5 {
                                          time: t))
 }
 
-// Optional: prediction while in progress
+// 3) Get an optional prediction while the stroke is in progress
 let predicted: [StrokeSample] = try modeler.predict(max: 128)
+print("Received \(predicted.count) predicted samples.")
 
-// 3) End stroke
+// 4) End the stroke
 let _ = try modeler.update(StrokeInput(eventType: .up, x: 60, y: 30, time: 0.06))
 
-// 4) Build a CGPath using the helper
+// 5) Build a final CGPath using the helper
 let smoother = InkStrokePathSmoother()
 try smoother.start(at: CGPoint(x: 0, y: 0), time: 0)
 try smoother.append(point: CGPoint(x: 50, y: 25), time: 0.05)
 let finalPath = try smoother.end(time: 0.06)
+print("Final path created: \(finalPath)")
 ```
 
 ## Parameters Overview
 
-The Swift API exposes the major knob sets from the upstream library:
+The Swift API exposes the major parameter sets from the upstream library:
 
 - `WobbleSmootherParams`
-  - `isEnabled`, `timeout`, `speedFloor`, `speedCeiling`
 - `PositionModelerParams`
-  - `springMassConstant`, `dragConstant`, `loop: LoopContractionMitigationParams`
 - `LoopContractionMitigationParams`
-  - `isEnabled`, speed bounds, interpolation strengths, `minSpeedSamplingWindow`
-  - When enabled, set `StylusStateModelerParams.useStrokeNormalProjection = true`.
 - `SamplingParams`
-  - `minOutputRate`, `endOfStrokeStoppingDistance`, `endOfStrokeMaxIterations`,
-    `maxOutputsPerCall`, `maxEstimatedAngleToTraversePerInput`
 - `StylusStateModelerParams`
-  - `useStrokeNormalProjection`
-- `PredictionParams`
-  - `.strokeEnd`, `.disabled`, `.kalman(KalmanPredictorParams)`
+- `PredictionParams` (as an enum: `.strokeEnd`, `.disabled`, `.kalman(KalmanPredictorParams)`)
 
-All time/duration values are unit‑agnostic; keep the same units across your
-inputs and parameters.
+All time and duration values are unit-agnostic; ensure you use consistent units across all inputs and parameters.
 
-## Notes
+## Contributing
 
-- C++20 toolchain is required but handled by SwiftPM for Apple platforms.
-- Abseil is provided via [firebase/abseil-cpp-SwiftPM], so no system install is
-  needed.
-- This package doesn’t include upstream tests; it builds the core library only.
-
-### Error handling
-
-Most API calls can throw `StrokeModelerError` if:
-- parameters are invalid (e.g. loop mitigation enabled without `useStrokeNormalProjection`),
-- inputs arrive out of order (e.g. `.move` before `.down`), or
-- `update/predict` is called before `reset`.
-
-Wrap calls in `do/catch` and report configuration issues early.
-
-[firebase/abseil-cpp-SwiftPM]: https://github.com/firebase/abseil-cpp-SwiftPM
+Pull requests are welcome! Please open an issue to discuss major changes.
 
 ## License
 
-This package wraps Google’s `ink-stroke-modeler` (Apache‑2.0). See upstream for
-license details of the C++ sources. This repository’s Swift code is provided
-under the same license.
+This repository's Swift wrapper code is provided under the Apache 2.0 license, consistent with the underlying C++ library from Google. See the `LICENSE` file in the `ink-stroke-modeler` submodule for details on the C++ sources.
