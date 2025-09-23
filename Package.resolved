@@ -1,0 +1,14 @@
+{
+  "pins" : [
+    {
+      "identity" : "abseil-cpp-swiftpm",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/firebase/abseil-cpp-SwiftPM.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "1c50c2cd0bffe5a03cde6fe17129334dcf05071b"
+      }
+    }
+  ],
+  "version" : 2
+}

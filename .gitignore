@@ -1,0 +1,31 @@
+# macOS
+.DS_Store
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# Xcode
+DerivedData/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcuserstate
+*.moved-aside
+*.xccheckout
+*.xcscmblueprint
+
+# Editors/IDEs
+.vscode/
+.idea/
+
+# Native build leftovers (if any)
+build-*/
+cmake-build-*/
+**/CMakeCache.txt
+**/CMakeFiles/
+**/CMakeScripts/
+**/Testing/
+
+# Logs
+*.log
