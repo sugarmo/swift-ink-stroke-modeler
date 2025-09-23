@@ -8,7 +8,7 @@ A Swift Package that wraps Google’s [ink-stroke-modeler](https://github.com/go
 
 This library turns noisy, raw pointer input from a touch device or stylus into beautiful, smooth stroke patterns, ideal for drawing and handwriting applications. It models the physics of a pen tip to create aesthetically pleasing curves while minimizing latency through motion prediction.
 
-![Position Model Diagram](ink-stroke-modeler/position_model.svg)
+![Position Model Diagram](https://raw.githubusercontent.com/google/ink-stroke-modeler/refs/heads/main/position_model.svg)
 
 ## Features
 
