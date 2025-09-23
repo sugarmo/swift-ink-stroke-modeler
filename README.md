@@ -38,7 +38,7 @@ The package is structured in three layers to safely bridge the underlying C++ li
 Add the package to your project’s `Package.swift` dependencies:
 
 ```swift
-.package(url: "https://github.com/Yojio/swift-ink-stroke-modeler.git", branch: "main")
+.package(url: "https://github.com/sugarmo/swift-ink-stroke-modeler.git", branch: "main")
 ```
 
 Then, add the `InkStrokeModelerSwift` product to your app or framework target:
