@@ -9,9 +9,9 @@ let package = Package(
     ],
     products: [
         // Low-level C++ product. This compiles the upstream sources.
-        .library(name: "InkStrokeModeler", targets: ["InkStrokeModeler"]) ,
+        .library(name: "InkStrokeModeler", targets: ["InkStrokeModeler"]),
         // Swift-friendly wrapper product
-        .library(name: "InkStrokeModelerSwift", targets: ["InkStrokeModelerSwift"]) 
+        .library(name: "InkStrokeModelerSwift", targets: ["InkStrokeModelerSwift"])
         // Swift wrapper target will be added after C++ compiles successfully.
     ],
     targets: [

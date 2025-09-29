@@ -282,7 +282,7 @@ public final class StrokeModeler {
         // Allocate a reasonably large buffer; the model typically produces a
         // small number of outputs per call.
         let capacity = 1024
-        var out = Array<ism_Result>(repeating: ism_Result(
+        var out = [ism_Result](repeating: ism_Result(
             position: ism_Vec2(x: 0, y: 0),
             velocity: ism_Vec2(x: 0, y: 0),
             acceleration: ism_Vec2(x: 0, y: 0),
@@ -309,7 +309,7 @@ public final class StrokeModeler {
     }
 
     public func predict(max: Int = 1024) throws -> [StrokeSample] {
-        var out = Array<ism_Result>(repeating: ism_Result(
+        var out = [ism_Result](repeating: ism_Result(
             position: ism_Vec2(x: 0, y: 0),
             velocity: ism_Vec2(x: 0, y: 0),
             acceleration: ism_Vec2(x: 0, y: 0),
