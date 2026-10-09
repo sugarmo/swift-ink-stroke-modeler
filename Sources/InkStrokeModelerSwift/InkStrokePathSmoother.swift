@@ -52,8 +52,13 @@ public final class InkStrokePathSmoother {
     }
 
     // Begin a stroke at a point/time.
-    public func start(at point: CGPoint, time: TimeInterval,
-                      pressure: Float = -1, tilt: Float = -1, orientation: Float = -1) throws {
+    public func start(
+        at point: CGPoint,
+        time: TimeInterval,
+        pressure: Float = -1,
+        tilt: Float = -1,
+        orientation: Float = -1
+    ) throws {
         guard !ended else { throw StrokeModelerError.failedPrecondition }
         guard !started else { throw StrokeModelerError.failedPrecondition }
 
@@ -77,8 +82,13 @@ public final class InkStrokePathSmoother {
     }
 
     // Append a point/time update.
-    public func append(point: CGPoint, time: TimeInterval,
-                       pressure: Float = -1, tilt: Float = -1, orientation: Float = -1) throws {
+    public func append(
+        point: CGPoint,
+        time: TimeInterval,
+        pressure: Float = -1,
+        tilt: Float = -1,
+        orientation: Float = -1
+    ) throws {
         guard started, !ended else { throw StrokeModelerError.failedPrecondition }
         let res = try modeler.update(StrokeInput(eventType: .move,
                                            x: Float(point.x), y: Float(point.y),
@@ -92,9 +102,13 @@ public final class InkStrokePathSmoother {
     // End the stroke. Optionally specify a final time; if not, the last time
     // used in append should be reused by callers to determine timestamps.
     @discardableResult
-    public func end(time: TimeInterval? = nil,
-                    point: CGPoint? = nil,
-                    pressure: Float = -1, tilt: Float = -1, orientation: Float = -1) throws -> CGPath {
+    public func end(
+        time: TimeInterval? = nil,
+        point: CGPoint? = nil,
+        pressure: Float = -1,
+        tilt: Float = -1,
+        orientation: Float = -1
+    ) throws -> CGPath {
         guard started, !ended else { throw StrokeModelerError.failedPrecondition }
 
         // Allow final move point right before up.

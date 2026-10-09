@@ -42,8 +42,15 @@ public struct StrokeInput {
     public var tilt: Float = -1
     public var orientation: Float = -1
 
-    public init(eventType: EventType, x: Float, y: Float, time: Double,
-                pressure: Float = -1, tilt: Float = -1, orientation: Float = -1) {
+    public init(
+        eventType: EventType,
+        x: Float,
+        y: Float,
+        time: Double,
+        pressure: Float = -1,
+        tilt: Float = -1,
+        orientation: Float = -1
+    ) {
         self.eventType = eventType
         self.x = x
         self.y = y
@@ -74,11 +81,13 @@ public struct SamplingParams {
     public var maxOutputsPerCall: Int32
     public var maxEstimatedAngleToTraversePerInput: Double // -1 to disable
 
-    public init(minOutputRate: Double,
-                endOfStrokeStoppingDistance: Float,
-                endOfStrokeMaxIterations: Int32 = 20,
-                maxOutputsPerCall: Int32 = 100_000,
-                maxEstimatedAngleToTraversePerInput: Double = -1) {
+    public init(
+        minOutputRate: Double,
+        endOfStrokeStoppingDistance: Float,
+        endOfStrokeMaxIterations: Int32 = 20,
+        maxOutputsPerCall: Int32 = 100_000,
+        maxEstimatedAngleToTraversePerInput: Double = -1
+    ) {
         self.minOutputRate = minOutputRate
         self.endOfStrokeStoppingDistance = endOfStrokeStoppingDistance
         self.endOfStrokeMaxIterations = endOfStrokeMaxIterations
@@ -92,8 +101,12 @@ public struct WobbleSmootherParams {
     public var timeout: Double
     public var speedFloor: Float
     public var speedCeiling: Float
-    public init(isEnabled: Bool = false, timeout: Double = 0,
-                speedFloor: Float = -1, speedCeiling: Float = -1) {
+    public init(
+        isEnabled: Bool = false,
+        timeout: Double = 0,
+        speedFloor: Float = -1,
+        speedCeiling: Float = -1
+    ) {
         self.isEnabled = isEnabled
         self.timeout = timeout
         self.speedFloor = speedFloor
@@ -108,12 +121,14 @@ public struct LoopContractionMitigationParams {
     public var interpolationStrengthAtSpeedLowerBound: Float
     public var interpolationStrengthAtSpeedUpperBound: Float
     public var minSpeedSamplingWindow: Double
-    public init(isEnabled: Bool = false,
-                speedLowerBound: Float = -1,
-                speedUpperBound: Float = -1,
-                interpolationStrengthAtSpeedLowerBound: Float = -1,
-                interpolationStrengthAtSpeedUpperBound: Float = -1,
-                minSpeedSamplingWindow: Double = 0) {
+    public init(
+        isEnabled: Bool = false,
+        speedLowerBound: Float = -1,
+        speedUpperBound: Float = -1,
+        interpolationStrengthAtSpeedLowerBound: Float = -1,
+        interpolationStrengthAtSpeedUpperBound: Float = -1,
+        minSpeedSamplingWindow: Double = 0
+    ) {
         self.isEnabled = isEnabled
         self.speedLowerBound = speedLowerBound
         self.speedUpperBound = speedUpperBound
@@ -127,9 +142,11 @@ public struct PositionModelerParams {
     public var springMassConstant: Float
     public var dragConstant: Float
     public var loop: LoopContractionMitigationParams
-    public init(springMassConstant: Float = 11.0/32400.0,
-                dragConstant: Float = 72.0,
-                loop: LoopContractionMitigationParams = .init()) {
+    public init(
+        springMassConstant: Float = 11.0/32400.0,
+        dragConstant: Float = 72.0,
+        loop: LoopContractionMitigationParams = .init()
+    ) {
         self.springMassConstant = springMassConstant
         self.dragConstant = dragConstant
         self.loop = loop
@@ -185,11 +202,13 @@ public final class StrokeModeler {
         }
     }
 
-    public func reset(wobble: WobbleSmootherParams = .init(),
-                      position: PositionModelerParams = .init(),
-                      sampling: SamplingParams,
-                      stylus: StylusStateModelerParams = .init(),
-                      prediction: PredictionParams = .strokeEnd) throws {
+    public func reset(
+        wobble: WobbleSmootherParams = .init(),
+        position: PositionModelerParams = .init(),
+        sampling: SamplingParams,
+        stylus: StylusStateModelerParams = .init(),
+        prediction: PredictionParams = .strokeEnd
+    ) throws {
         var cp = ism_StrokeModelParams(
             wobble: ism_WobbleSmootherParams(
                 is_enabled: wobble.isEnabled,
